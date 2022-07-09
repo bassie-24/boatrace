@@ -3,16 +3,16 @@
 
 import sys, os
 import pandas as pd
-from sklearn.model_selection import train_test_split
-import keras
-from keras import models, layers, regularizers
-from google.colab import drive
+# from sklearn.model_selection import train_test_split
+# import keras
+# from keras import models, layers, regularizers
+# from google.colab import drive
 from datetime import date, timedelta
 from datetime import datetime as dt
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import LabelEncoder
-import seaborn as sns
+# import seaborn as sns
 import pickle
 
 def calc_buy(sorted_combis, siki, result):  
@@ -36,7 +36,7 @@ def calc_buy(sorted_combis, siki, result):
 
 
 def view_buy(sorted_combis, siki, parameter):  
-  print('{} {}上位'.format(siki, parameter))
+  print('{} {}'.format(siki, parameter))
   for m, item in enumerate(sorted_combis):
     key = item[0]
     value = item[1]
@@ -63,7 +63,6 @@ def predict_buy(test_x, odds, select):
     t_x['Waku'] = j
     predicts[j] = model.predict(t_x.astype('float64'))
 
-  print(predicts)
   ## 予測値を算出
   ## combis: 各かけ式について，買い目を的中率予測の大きい順にソートしたもの
   ## exvalues: 各かけ式について，買い目を期待値の大きい順にソートしたもの
@@ -145,15 +144,15 @@ def predict_buy(test_x, odds, select):
   sorted_exvalues_2f = sorted(exvalues_2f.items(), key=lambda v: v[1], reverse=True)
   #print(predicts, sorted_combis)
 
-  view_buy(sorted_combis_3t, 't3', '的中率')
-  view_buy(sorted_combis_3f, 'f3', '的中率')
-  view_buy(sorted_combis_2t, 't2', '的中率')
-  view_buy(sorted_combis_2f, 'f2', '的中率')
+  view_buy(sorted_combis_3t, 't3', 'Hit rate')
+  view_buy(sorted_combis_3f, 'f3', 'Hit rate')
+  view_buy(sorted_combis_2t, 't2', 'Hit rate')
+  view_buy(sorted_combis_2f, 'f2', 'Hit rate')
 
-  view_buy(sorted_exvalues_3t, 't3', '期待値')
-  view_buy(sorted_exvalues_3f, 'f3', '期待値')
-  view_buy(sorted_exvalues_2t, 't2', '期待値')
-  view_buy(sorted_exvalues_2f, 'f2', '期待値')
+  view_buy(sorted_exvalues_3t, 't3', 'Expected value')
+  view_buy(sorted_exvalues_3f, 'f3', 'Expected value')
+  view_buy(sorted_exvalues_2t, 't2', 'Expected value')
+  view_buy(sorted_exvalues_2f, 'f2', 'Expected value')
 
   ## 実際の結果を出す
   # results = {}
@@ -616,32 +615,36 @@ def prepare_dataset(rno, jcd, hd):
 
 # In[ ]:
 
+if __name__ == '__main__':
+  filename = './model.pkl'
+  with open(filename, 'rb') as f:
+    model = pickle.load(f)
+  
+  rno = sys.stdin.readline().strip()  # レースナンバー
+  jcd = sys.stdin.readline().strip()  # レース場
+  hd = sys.stdin.readline().strip()  # 日付
+  select = sys.stdin.readline().strip()  # 買い目
+  select = int(select)
 
-filename = './model.pkl'
-with open(filename, 'rb') as f:
-  model = pickle.load(f)
+  # rno = '1'  # レースナンバー
+  # jcd = '05'  # レース場
+  # hd = '20220401'  # 日付
+  # select = 6  # 買い目
+  # print(rno, jcd, hd, select)
+  outdf, odds_outdf = prepare_dataset(rno, jcd, hd)
 
-rno = 12  # レースナンバー
-jcd = 22  # レース場
-hd = 20220319  # 日付
-select = 12  # 買い目
-
-outdf, odds_outdf = prepare_dataset(rno, jcd, hd)
-
-drop_cols = (["Waku_1", "Lastname_1", "Firstname_1", "Birth_1", "Branch_1", "Age_1", "m_num_1", "b_num_1", "Waku_2", "Lastname_2", "Firstname_2", "Birth_2", "Branch_2", "Age_2",                 "m_num_2", "b_num_2",                   "Waku_3", "Lastname_3", "Firstname_3", "Birth_3", "Branch_3", "Age_3",                   "m_num_3", "b_num_3",                  "Waku_4", "Lastname_4", "Firstname_4", "Birth_4", "Branch_4", "Age_4",                  "m_num_4", "b_num_4",                  "Waku_5", "Lastname_5", "Firstname_5", "Birth_5", "Branch_5", "Age_5",                  "m_num_5", "b_num_5",                  "Waku_6", "Lastname_6", "Firstname_6", "Birth_6", "Branch_6", "Age_6",                  "m_num_6", "b_num_6",                  "Weather", "Wind", "Wave"])
-dataset = outdf.drop(columns=drop_cols)
-dataset = dataset.replace(['-'], np.nan)
-#dataset = dataset.dropna()
-weights = ["Weight_1", "Weight_2", "Weight_3", "Weight_4", "Weight_5", "Weight_6"]
-for weight in weights:
-  #dataset[weight] = dataset[weight].apply(lambda x: x[:-2])
-  dataset[weight] = dataset[weight].astype(float)
-classes = ["Class_1", "Class_2", "Class_3", "Class_3", "Class_4", "Class_5", "Class_6"]
-for cs in classes:
-  le = LabelEncoder()
-  le.fit(dataset[cs])
-  dataset[cs] = le.transform(dataset[cs])
-
-predict_buy(dataset, odds_outdf, select)
-
+  drop_cols = (["Waku_1", "Lastname_1", "Firstname_1", "Birth_1", "Branch_1", "Age_1", "m_num_1", "b_num_1", "Waku_2", "Lastname_2", "Firstname_2", "Birth_2", "Branch_2", "Age_2",                 "m_num_2", "b_num_2",                   "Waku_3", "Lastname_3", "Firstname_3", "Birth_3", "Branch_3", "Age_3",                   "m_num_3", "b_num_3",                  "Waku_4", "Lastname_4", "Firstname_4", "Birth_4", "Branch_4", "Age_4",                  "m_num_4", "b_num_4",                  "Waku_5", "Lastname_5", "Firstname_5", "Birth_5", "Branch_5", "Age_5",                  "m_num_5", "b_num_5",                  "Waku_6", "Lastname_6", "Firstname_6", "Birth_6", "Branch_6", "Age_6",                  "m_num_6", "b_num_6",                  "Weather", "Wind", "Wave"])
+  dataset = outdf.drop(columns=drop_cols)
+  dataset = dataset.replace(['-'], np.nan)
+  #dataset = dataset.dropna()
+  weights = ["Weight_1", "Weight_2", "Weight_3", "Weight_4", "Weight_5", "Weight_6"]
+  for weight in weights:
+    #dataset[weight] = dataset[weight].apply(lambda x: x[:-2])
+    dataset[weight] = dataset[weight].astype(float)
+  classes = ["Class_1", "Class_2", "Class_3", "Class_3", "Class_4", "Class_5", "Class_6"]
+  for cs in classes:
+    le = LabelEncoder()
+    le.fit(dataset[cs])
+    dataset[cs] = le.transform(dataset[cs])
+  predict_buy(dataset, odds_outdf, select)
 
