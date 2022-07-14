@@ -64,7 +64,7 @@ app.post('/echo', (req, res) => {
   var options = {
     pythonPath: './general/Scripts/python',
     // pythonPath: 'C:/Users/ryooo/anaconda3/envs/general/python',
-    scriptPath: './python/'
+    scriptPath: './python_code/'
   }
   var pyshell = new PythonShell('predict.py', options);
   pyshell.send(req.body.itemName[0]);
